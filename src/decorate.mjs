@@ -1,6 +1,6 @@
 import { join } from 'path';
 import { pathToFileURL } from 'url';
-import { findProjectRoot, findCodeRoot, parseHeadHtml } from './project.mjs';
+import { findProjectRoot, findCodeRoot } from './project.mjs';
 import { createEnvironment } from './environment.mjs';
 
 /**
@@ -122,7 +122,6 @@ export async function decorate(config) {
     const { document } = window;
 
     // Build DOM: head with scripts.js reference, body with header/main/footer
-    const scriptsJsEntry = scripts.find((s) => s.endsWith('/scripts/scripts.js'));
     const scriptsJsPath = join(codeRoot, 'scripts', 'scripts.js');
     const scriptsUrl = pathToFileURL(scriptsJsPath).href;
     document.head.innerHTML = `<meta charset="utf-8"><title>Decorate</title><script src="${scriptsUrl}"></script>`;

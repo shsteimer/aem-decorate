@@ -38,13 +38,11 @@ function startMockServer() {
 
 describe('decorate', () => {
   let server;
-  let port;
   let origin;
 
   before(async () => {
     const result = await startMockServer();
     server = result.server;
-    port = result.port;
     origin = result.origin;
   });
 
