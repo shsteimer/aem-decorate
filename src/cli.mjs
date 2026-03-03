@@ -35,6 +35,11 @@ Examples:
   decorate http://localhost:3000/index --no-header --no-footer`;
 
 const VALID_FORMATS = ['html', 'md'];
+const HELP_HINT = '\nRun "decorate --help" for usage information';
+
+function usageError(msg) {
+  return new Error(msg + HELP_HINT);
+}
 
 export function formatHelp() {
   return HELP;
@@ -68,25 +73,25 @@ export function parseArgs(argv) {
       i += 1;
     } else if (arg === '-p' || arg === '--project') {
       projectRoot = args[i + 1];
-      if (projectRoot === undefined) throw new Error('--project requires a path argument');
+      if (projectRoot === undefined) throw usageError('--project requires a path argument');
       i += 2;
     } else if (arg === '-s' || arg === '--selector') {
       selector = args[i + 1];
-      if (selector === undefined) throw new Error('--selector requires a CSS selector argument');
+      if (selector === undefined) throw usageError('--selector requires a CSS selector argument');
       i += 2;
     } else if (arg === '-t' || arg === '--timeout') {
       const raw = args[i + 1];
-      if (raw === undefined) throw new Error('--timeout requires a value in milliseconds');
+      if (raw === undefined) throw usageError('--timeout requires a value in milliseconds');
       timeout = Number(raw);
       if (!Number.isFinite(timeout) || timeout <= 0) {
-        throw new Error(`Invalid timeout value: ${raw}`);
+        throw usageError(`Invalid timeout value: ${raw}`);
       }
       i += 2;
     } else if (arg === '-f' || arg === '--format') {
       format = args[i + 1];
-      if (format === undefined) throw new Error('--format requires a value (html, md)');
+      if (format === undefined) throw usageError('--format requires a value (html, md)');
       if (!VALID_FORMATS.includes(format)) {
-        throw new Error(`Invalid format: ${format}. Must be one of: ${VALID_FORMATS.join(', ')}`);
+        throw usageError(`Invalid format: ${format}. Must be one of: ${VALID_FORMATS.join(', ')}`);
       }
       i += 2;
     } else if (arg === '--no-header') {
@@ -96,9 +101,9 @@ export function parseArgs(argv) {
       footer = false;
       i += 1;
     } else if (arg.startsWith('-')) {
-      throw new Error(`Unknown option: ${arg}`);
+      throw usageError(`Unknown option: ${arg}`);
     } else {
-      if (url !== null) throw new Error(`Unexpected argument: ${arg}`);
+      if (url !== null) throw usageError(`Unexpected argument: ${arg}`);
       url = arg;
       i += 1;
     }
@@ -107,7 +112,7 @@ export function parseArgs(argv) {
   if (help) return { help: true };
   if (showVersion) return { version: true };
 
-  if (!url) throw new Error('Missing required argument: url');
+  if (!url) throw usageError('Missing required argument: url');
 
   let devOrigin;
   let pathname;
