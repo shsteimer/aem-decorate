@@ -62,15 +62,39 @@ function cleanupStyles(document) {
 
 /**
  * Convert HTML to markdown using turndown.
+ * Adds structural markers for AEM sections and blocks.
  */
-async function toMarkdown(html) {
+export async function toMarkdown(html) {
   const TurndownService = (await import('turndown')).default;
   const turndown = new TurndownService({
     headingStyle: 'atx',
     codeBlockStyle: 'fenced',
   });
+
+  const hasClass = (node, name) => (node.getAttribute('class') || '').split(/\s+/).includes(name);
+
+  turndown.addRule('section', {
+    filter: (node) => node.nodeName === 'DIV' && hasClass(node, 'section'),
+    replacement: (content, node) => (node.nextElementSibling
+      ? `${content.trim()}\n\n---\n\n`
+      : content.trim()),
+  });
+
+  turndown.addRule('block', {
+    filter: (node) => node.nodeName === 'DIV' && hasClass(node, 'block'),
+    replacement: (content, node) => {
+      const name = node.getAttribute('data-block-name') || 'unknown';
+      return `<!-- block: ${name} -->\n\n${content.trim()}\n\n<!-- block end: ${name} -->`;
+    },
+  });
+
   return turndown.turndown(html);
 }
+
+// Cache-bust counter for script imports. Node.js ESM caches by URL, so
+// without this, module-level side effects (e.g. loadPage() in scripts.js)
+// only run on the first decorate() call in a process.
+let importSeq = 0;
 
 /**
  * Main decoration function.
@@ -96,6 +120,8 @@ export async function decorate(config) {
     header: includeHeader = true,
     footer: includeFooter = true,
   } = config;
+
+  importSeq += 1;
 
   // Resolve project and code root
   const projectRoot = config.projectRoot || findProjectRoot(process.cwd());
@@ -136,7 +162,7 @@ export async function decorate(config) {
       const localPath = join(projectRoot, relativePath);
       const fileUrl = pathToFileURL(localPath).href;
 
-      await import(fileUrl);
+      await import(`${fileUrl}?seq=${importSeq}`);
 
       // After importing aem.js, override codeBasePath so loadBlock uses file:// URLs
       if (scriptSrc.endsWith('/aem.js') && window.hlx) {

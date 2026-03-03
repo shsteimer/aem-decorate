@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'http';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
-import { decorate } from '../src/decorate.mjs';
+import { decorate, toMarkdown } from '../src/decorate.mjs';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const mockProject = join(__dirname, 'fixtures', 'mock-project');
@@ -211,5 +211,90 @@ describe('decorate', () => {
         return true;
       },
     );
+  });
+});
+
+describe('toMarkdown', () => {
+  it('adds section separators between sections', async () => {
+    const html = `<main>
+      <div class="section"><h1>First</h1></div>
+      <div class="section"><h2>Second</h2></div>
+    </main>`;
+
+    const result = await toMarkdown(html);
+
+    assert.ok(result.includes('# First'), 'should contain first section content');
+    assert.ok(result.includes('## Second'), 'should contain second section content');
+    assert.ok(result.includes('---'), 'should have section separator');
+
+    // Separator between sections, not after last
+    const separator = result.indexOf('---');
+    const second = result.indexOf('## Second');
+    assert.ok(separator < second, 'separator should come before second section');
+    assert.ok(result.lastIndexOf('---') < second, 'no trailing separator');
+  });
+
+  it('adds block comment markers', async () => {
+    const html = `<div class="hero block" data-block-name="hero">
+      <h1>Hero Title</h1><p>Hero text</p>
+    </div>`;
+
+    const result = await toMarkdown(html);
+
+    assert.ok(result.includes('<!-- block: hero -->'), 'should have block start marker');
+    assert.ok(result.includes('<!-- block end: hero -->'), 'should have block end marker');
+
+    const start = result.indexOf('<!-- block: hero -->');
+    const content = result.indexOf('Hero Title');
+    const end = result.indexOf('<!-- block end: hero -->');
+    assert.ok(start < content, 'block start before content');
+    assert.ok(content < end, 'content before block end');
+  });
+
+  it('combines section separators and block markers', async () => {
+    const html = `<main>
+      <div class="section">
+        <div class="hero block" data-block-name="hero">
+          <h1>Hero Title</h1>
+        </div>
+      </div>
+      <div class="section">
+        <h2>Second Section</h2>
+        <p>More content.</p>
+      </div>
+    </main>`;
+
+    const result = await toMarkdown(html);
+
+    // Block markers present
+    assert.ok(result.includes('<!-- block: hero -->'), 'should have block start');
+    assert.ok(result.includes('<!-- block end: hero -->'), 'should have block end');
+
+    // Section separator present
+    assert.ok(result.includes('---'), 'should have section separator');
+
+    // Correct ordering
+    const blockStart = result.indexOf('<!-- block: hero -->');
+    const blockEnd = result.indexOf('<!-- block end: hero -->');
+    const separator = result.indexOf('---');
+    const secondSection = result.indexOf('Second Section');
+
+    assert.ok(blockStart < blockEnd, 'block start before block end');
+    assert.ok(blockEnd < separator, 'block end before separator');
+    assert.ok(separator < secondSection, 'separator before second section');
+
+    // No trailing separator
+    assert.ok(result.lastIndexOf('---') < secondSection, 'no separator after last section');
+  });
+
+  it('omits separator when there is only one section', async () => {
+    const html = `<main>
+      <div class="section"><h1>Only Section</h1></div>
+    </main>`;
+
+    const result = await toMarkdown(html);
+
+    assert.ok(result.includes('# Only Section'), 'should contain section content');
+    assert.ok(!result.includes('---'), 'should not have separator for single section');
   });
 });
