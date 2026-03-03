@@ -3,6 +3,19 @@
   "version": "0.1.0",
   "description": "Headless decoration pipeline runner for AEM Edge Delivery Services projects",
   "type": "module",
+  "license": "Apache-2.0",
+  "author": "Sean Steimer",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ssteimer/aem-decorate.git"
+  },
+  "keywords": [
+    "aem",
+    "eds",
+    "edge-delivery-services",
+    "decorate",
+    "headless"
+  ],
   "bin": {
     "decorate": "./bin/decorate.mjs"
   },
