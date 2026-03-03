@@ -29,7 +29,7 @@ transformation, and check that your code handles authored content correctly.
 The dev server must be running.
 ```
 
-If your project doesn't use `AGENTS.md`, add equivalent instructions to whatever agent configuration your tooling supports (e.g. `CLAUDE.md`, `.github/copilot-instructions.md`). The `--format md` flag is particularly useful for agents since markdown is easier to reason about than raw HTML.
+If your project doesn't use `AGENTS.md`, add equivalent instructions to whatever agent configuration your tooling supports (e.g. `CLAUDE.md`, `.github/copilot-instructions.md`).
 
 ## Usage
 
