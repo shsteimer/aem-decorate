@@ -7,7 +7,6 @@ import { join, dirname, resolve } from 'path';
  */
 export function findProjectRoot(startDir) {
   let dir = resolve(startDir);
-  const root = dirname(dir);
 
   while (true) {
     if (existsSync(join(dir, 'head.html'))) return dir;
