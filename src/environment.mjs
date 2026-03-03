@@ -22,7 +22,7 @@ function setGlobal(key, value) {
 }
 
 /**
- * Create a Happy-DOM environment with all globals patched for EDS scripts.
+ * Create a Happy-DOM environment with all globals patched for project scripts.
  * Returns { window, cleanup } where cleanup restores original globals.
  */
 export function createEnvironment(devOrigin) {

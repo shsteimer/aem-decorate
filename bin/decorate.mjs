@@ -18,7 +18,7 @@ try {
 
   const output = await decorate(config);
   console.log(output);
-  // Force exit — EDS block code may leave orphaned timers that
+  // Force exit — block code may leave orphaned timers that
   // prevent clean shutdown (same approach as the original tool)
   process.exit(0);
 } catch (err) {

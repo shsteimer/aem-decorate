@@ -78,7 +78,7 @@ async function toMarkdown(html) {
  * @param {object} config - Configuration from parseArgs
  * @param {string} config.devOrigin - Dev server origin
  * @param {string} config.pathname - Page pathname
- * @param {string} [config.projectRoot] - EDS project root (auto-detected if omitted)
+ * @param {string} [config.projectRoot] - AEM project root (auto-detected if omitted)
  * @param {string} [config.selector] - CSS selector to filter output
  * @param {number} [config.timeout=15000] - Decoration timeout in ms
  * @param {string} [config.format='html'] - Output format: 'html' or 'md'
@@ -104,7 +104,7 @@ export async function decorate(config) {
   // Set up headless environment
   const { window, cleanup } = createEnvironment(devOrigin);
 
-  // Suppress console output during decoration — EDS code logs block load
+  // Suppress console output during decoration — block code logs block load
   // failures via console.log/error, and Happy-DOM objects serialize as
   // massive symbol dumps that pollute output
   const originalLog = console.log;

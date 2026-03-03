@@ -1,4 +1,4 @@
-// Minimal mock aem.js that mimics the EDS decoration pipeline
+// Minimal mock aem.js that mimics the Edge Delivery decoration pipeline
 window.hlx = window.hlx || {};
 window.hlx.codeBasePath = '';
 window.hlx.RUM_MANUAL_ENHANCE = true;

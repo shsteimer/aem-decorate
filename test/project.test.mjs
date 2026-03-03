@@ -24,7 +24,7 @@ describe('findProjectRoot', () => {
     const emptyDir = mkdtempSync(join(tmpdir(), 'no-project-'));
     assert.throws(
       () => findProjectRoot(emptyDir),
-      { message: /Could not find EDS project root/ },
+      { message: /Could not find AEM project root/ },
     );
   });
 });

@@ -7,7 +7,7 @@ const { version } = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.js
 
 const HELP = `decorate <url> [options]
 
-Fetch and decorate an AEM EDS page using the project's decoration pipeline.
+Fetch and decorate an AEM Edge Delivery page using the project's decoration pipeline.
 Runs the full decoration lifecycle (aem.js → scripts.js → blocks) in a
 headless environment and outputs the resulting HTML.
 
@@ -15,7 +15,7 @@ Arguments:
   url                     Dev server URL or path (e.g. http://localhost:3000/my-page, /my-page)
 
 Options:
-  -p, --project <path>    EDS project root (default: auto-detect from cwd)
+  -p, --project <path>    AEM project root (default: auto-detect from cwd)
   -s, --selector <css>    CSS selector to limit output to matching elements
   -t, --timeout <ms>      Decoration timeout in milliseconds (default: 15000)
   -f, --format <type>     Output format: html, md (default: html)

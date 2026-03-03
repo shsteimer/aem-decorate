@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'fs';
 import { join, dirname, resolve } from 'path';
 
 /**
- * Walk up from startDir looking for head.html (EDS project marker).
+ * Walk up from startDir looking for head.html (AEM project marker).
  * Returns the directory containing head.html, or throws.
  */
 export function findProjectRoot(startDir) {
@@ -17,7 +17,7 @@ export function findProjectRoot(startDir) {
   }
 
   throw new Error(
-    `Could not find EDS project root (no head.html found above ${startDir})`,
+    `Could not find AEM project root (no head.html found above ${startDir})`,
   );
 }
 
