@@ -7,7 +7,7 @@
   "author": "Sean Steimer",
   "repository": {
     "type": "git",
-    "url": "https://github.com/shsteimer/aem-decorate.git"
+    "url": "git+https://github.com/shsteimer/aem-decorate.git"
   },
   "keywords": [
     "aem",
@@ -16,8 +16,12 @@
     "decorate",
     "headless"
   ],
+  "files": [
+    "bin/",
+    "src/"
+  ],
   "bin": {
-    "decorate": "./bin/decorate.mjs"
+    "decorate": "bin/decorate.mjs"
   },
   "exports": {
     ".": "./src/decorate.mjs"
