@@ -1,6 +1,6 @@
 {
   "name": "aem-decorate",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Headless decoration pipeline runner for AEM Edge Delivery Services projects",
   "type": "module",
   "license": "Apache-2.0",
