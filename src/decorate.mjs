@@ -20,25 +20,51 @@ async function fetchContent(devOrigin, pathname) {
 }
 
 /**
- * Wait for all sections and blocks to reach "loaded" status.
+ * Wait for sections and blocks to finish decorating.
+ *
+ * Resolves when either:
+ *   - All managed sections (those with a sectionStatus) reach "loaded", OR
+ *   - Decoration stabilizes — no section/block status changes for `stableMs`
+ *
+ * Sections without a sectionStatus (e.g. injected by dynamic blocks like tabs)
+ * are ignored since they don't participate in the standard lifecycle.
  */
-function waitForDecoration(document, timeout) {
+function waitForDecoration(document, timeout, stableMs = 2000) {
   const main = document.querySelector('main');
   const start = Date.now();
+  let lastSnapshot = '';
+  let stableSince = Date.now();
 
   return new Promise((resolve, reject) => {
     const check = () => {
       const sections = main.querySelectorAll('.section');
-      const allLoaded = sections.length === 0
-        || [...sections].every((s) => s.dataset.sectionStatus === 'loaded');
+      const managed = [...sections].filter((s) => s.dataset.sectionStatus !== undefined);
+      const allLoaded = managed.length === 0
+        || managed.every((s) => s.dataset.sectionStatus === 'loaded');
 
-      const blocksReady = [...document.querySelectorAll('header .block, footer .block')]
+      const headerFooterBlocks = [...document.querySelectorAll('header .block, footer .block')];
+      const blocksReady = headerFooterBlocks
         .every((b) => b.dataset.blockStatus === 'loaded');
 
       if (allLoaded && blocksReady) {
         resolve();
-      } else if (Date.now() - start > timeout) {
-        const stalled = [...sections]
+        return;
+      }
+
+      // Track stabilization — resolve if nothing has changed for stableMs
+      const snapshot = managed.map((s) => s.dataset.sectionStatus).join(',')
+        + '|' + headerFooterBlocks.map((b) => b.dataset.blockStatus).join(',');
+
+      if (snapshot !== lastSnapshot) {
+        lastSnapshot = snapshot;
+        stableSince = Date.now();
+      } else if (Date.now() - stableSince > stableMs) {
+        resolve();
+        return;
+      }
+
+      if (Date.now() - start > timeout) {
+        const stalled = managed
           .filter((s) => s.dataset.sectionStatus !== 'loaded')
           .map((s) => `  ${s.className} [${s.dataset.sectionStatus}]`);
         reject(new Error(`Decoration timed out after ${timeout}ms. Stalled sections:\n${stalled.join('\n')}`));
@@ -141,6 +167,13 @@ export async function decorate(config) {
   console.error = noop;
   console.warn = noop;
 
+  // Capture stray promise rejections from the AEM pipeline (e.g. block
+  // loading failures that reject with DOM Event objects). These escape the
+  // main await chain and would otherwise crash the process.
+  const strayRejections = [];
+  const rejectionHandler = (reason) => strayRejections.push(reason);
+  process.on('unhandledRejection', rejectionHandler);
+
   try {
     // Fetch page content from dev server
     const html = await fetchContent(devOrigin, pathname);
@@ -196,6 +229,7 @@ export async function decorate(config) {
     const output = parts.join('\n');
     return format === 'md' ? await toMarkdown(output) : output;
   } finally {
+    process.removeListener('unhandledRejection', rejectionHandler);
     console.log = originalLog;
     console.error = originalError;
     console.warn = originalWarn;
