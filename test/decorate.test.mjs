@@ -212,6 +212,44 @@ describe('decorate', () => {
       },
     );
   });
+
+  it('ignores sections without sectionStatus (dynamic blocks like tabs)', async () => {
+    const project = join(__dirname, 'fixtures', 'unmanaged-section-project');
+
+    const result = await decorate({
+      devOrigin: origin,
+      pathname: '/test-page',
+      projectRoot: project,
+      timeout: 5000,
+      format: 'html',
+      header: true,
+      footer: true,
+    });
+
+    assert.ok(result.includes('Hello World'), 'output should contain page content');
+    assert.ok(result.includes('tabs'), 'output should contain the unmanaged section');
+  });
+
+  it('resolves via stabilization when managed sections stall', async () => {
+    const project = join(__dirname, 'fixtures', 'stabilizing-project');
+    const start = Date.now();
+
+    const result = await decorate({
+      devOrigin: origin,
+      pathname: '/test-page',
+      projectRoot: project,
+      timeout: 15000,
+      format: 'html',
+      header: true,
+      footer: true,
+    });
+
+    const elapsed = Date.now() - start;
+
+    assert.ok(result.includes('Hello World'), 'output should contain page content');
+    // Should resolve via stabilization (~2s) rather than timing out (15s)
+    assert.ok(elapsed < 10000, `Expected stabilization resolve, but took ${elapsed}ms`);
+  });
 });
 
 describe('toMarkdown', () => {
