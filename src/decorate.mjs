@@ -52,8 +52,7 @@ function waitForDecoration(document, timeout, stableMs = 2000) {
       }
 
       // Track stabilization — resolve if nothing has changed for stableMs
-      const snapshot = managed.map((s) => s.dataset.sectionStatus).join(',')
-        + '|' + headerFooterBlocks.map((b) => b.dataset.blockStatus).join(',');
+      const snapshot = `${managed.map((s) => s.dataset.sectionStatus).join(',')}|${headerFooterBlocks.map((b) => b.dataset.blockStatus).join(',')}`;
 
       if (snapshot !== lastSnapshot) {
         lastSnapshot = snapshot;
